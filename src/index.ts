@@ -37,7 +37,7 @@ const checkTypes = async (name: string): Promise<TypeResult | null> => {
 (async () => {
     const names = process.argv.slice(2);
     if(!names.length)
-        return logger.error("Invalid usage", `${chalk.gray(parse(process.argv[1]).name ?? "is-typed")} ...package-names`);
+        return logger.error("Invalid usage", `${chalk.gray(parse(process.argv[1]).name ?? "has-types")} ...package-names`);
 
     logger.info("Gathering data...");
     const all = await Promise.all(names.map(async name => ({ name, result: await checkTypes(name) })));

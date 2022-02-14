@@ -1,5 +1,5 @@
 {
-    "name": "is-typed",
+    "name": "has-types",
     "version": "1.0.0",
     "main": "src/index.js",
     "repository": "https://github.com/antony1060/is-typed",

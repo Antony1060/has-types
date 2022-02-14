@@ -1,18 +1,18 @@
-# is-typed
+# has-types
 
 A simple cli utility to check if a package has built-in types or definitely typed
 
 ```bash
-$ is-typed react
+$ has-types react
 definitely typed
 ```
 
 ```bash
-$ is-typed @lvksh/logger
+$ has-types @lvksh/logger
 built-in
 ```
 
 ```bash
-$ is-typed flakeid
+$ has-types flakeid
 no types :(
 ```
