@@ -13,23 +13,43 @@ const logger = createLogger({
 const DT_REGEX = /^DefinitelyTyped icon/g;
 const BUILT_IN_REGEX = /^TypeScript icon/g;
 
-(async () => {
-    const name = process.argv[2];
-    if(!name)
-        return logger.error("Invalid usage", `${chalk.gray(parse(process.argv[1]).name ?? "is-typed")} <package-name>`);
+type TypeResult = "definitely" | "built-in" | "no";
 
-    logger.info("Gathering data...");
+const checkTypes = async (name: string): Promise<TypeResult | null> => {
     const src: string | false = await axios.get(`https://www.npmjs.com/package/${name}`).then(it => it.data).catch(() => false);
     if(!src)
-        return logger.error("Package not found");
+        return null;
 
     const $ = load(src);
-    const alt = $("main div h2 img").attr("alt");
+    const alt = $("main div h2 img").attr("alt")?.trim();
 
-    if(BUILT_IN_REGEX.test(alt))
-        logger.result("built-in")
-    else if (DT_REGEX.test(alt))
-        logger.result("definitely typed")
+    if(!alt)
+        return "no";
+
+    if (alt.match(BUILT_IN_REGEX))
+        return "built-in"
+    else if (alt.match(DT_REGEX))
+        return "definitely"
     else
-        logger.result("no types :(")
+        return "no"
+}
+
+(async () => {
+    const names = process.argv.slice(2);
+    if(!names.length)
+        return logger.error("Invalid usage", `${chalk.gray(parse(process.argv[1]).name ?? "is-typed")} ...package-names`);
+
+    logger.info("Gathering data...");
+    const all = await Promise.all(names.map(async name => ({ name, result: await checkTypes(name) })));
+
+    for (const res of all) {
+        if (!res.result)
+            logger.error(chalk.gray(res.name) + " Package not found");
+        else if (res.result === "built-in")
+            logger.result(chalk.gray(res.name) + " built-in")
+        else if (res.result === "definitely")
+            logger.result(chalk.gray(res.name) + " definitely typed")
+        else
+            logger.result(chalk.gray(res.name) + " no types :(")
+    }
 })();
